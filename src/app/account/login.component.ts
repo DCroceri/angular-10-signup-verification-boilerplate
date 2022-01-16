@@ -3,7 +3,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { first } from 'rxjs/operators';
 
-import { AccountService, AlertService } from '@app/_services';
+import { AccountService, AlertService, UserService } from '@app/_services';
 
 @Component({ templateUrl: 'login.component.html' })
 export class LoginComponent implements OnInit {
@@ -16,12 +16,13 @@ export class LoginComponent implements OnInit {
         private route: ActivatedRoute,
         private router: Router,
         private accountService: AccountService,
-        private alertService: AlertService
+        private alertService: AlertService,
+        private userService: UserService
     ) { }
 
     ngOnInit() {
         this.form = this.formBuilder.group({
-            email: ['', [Validators.required, Validators.email]],
+            username: ['', Validators.required],
             password: ['', Validators.required]
         });
     }
@@ -41,13 +42,16 @@ export class LoginComponent implements OnInit {
         }
 
         this.loading = true;
-        this.accountService.login(this.f.email.value, this.f.password.value)
-            .pipe(first())
+        this.accountService.login(this.f.username.value, this.f.password.value)
             .subscribe({
                 next: () => {
-                    // get return url from query parameters or default to home page
-                    const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
-                    this.router.navigateByUrl(returnUrl);
+                    this.userService.getUser().pipe(first()).subscribe({
+                        next: () => {
+                            // get return url from query parameters or default to home page
+                            const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+                            this.router.navigateByUrl(returnUrl);
+                        }
+                    });
                 },
                 error: error => {
                     this.alertService.error(error);

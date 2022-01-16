@@ -3,12 +3,13 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { first } from 'rxjs/operators';
 
-import { AccountService, AlertService } from '@app/_services';
+import { AccountService, AlertService, UserService } from '@app/_services';
 import { MustMatch } from '@app/_helpers';
 
 @Component({ templateUrl: 'update.component.html' })
 export class UpdateComponent implements OnInit {
     account = this.accountService.accountValue;
+    user = this.userService.userValue;
     form: FormGroup;
     loading = false;
     submitted = false;
@@ -19,16 +20,15 @@ export class UpdateComponent implements OnInit {
         private route: ActivatedRoute,
         private router: Router,
         private accountService: AccountService,
-        private alertService: AlertService
+        private alertService: AlertService,
+        private userService: UserService
     ) { }
 
     ngOnInit() {
         this.form = this.formBuilder.group({
-            title: [this.account.title, Validators.required],
-            firstName: [this.account.firstName, Validators.required],
-            lastName: [this.account.lastName, Validators.required],
-            email: [this.account.email, [Validators.required, Validators.email]],
-            password: ['', [Validators.minLength(6)]],
+            name: [this.user.name, Validators.required],
+            email: [this.user.email, [Validators.required, Validators.email]],
+            password: ['', [Validators.minLength(4)]],
             confirmPassword: ['']
         }, {
             validator: MustMatch('password', 'confirmPassword')
@@ -50,7 +50,7 @@ export class UpdateComponent implements OnInit {
         }
 
         this.loading = true;
-        this.accountService.update(this.account.id, this.form.value)
+        this.accountService.update(this.user.id, this.form.value)
             .pipe(first())
             .subscribe({
                 next: () => {
@@ -66,12 +66,12 @@ export class UpdateComponent implements OnInit {
 
     onDelete() {
         if (confirm('Are you sure?')) {
-            this.deleting = true;
-            this.accountService.delete(this.account.id)
-                .pipe(first())
-                .subscribe(() => {
-                    this.alertService.success('Account deleted successfully', { keepAfterRouteChange: true });
-                });
+            // this.deleting = true;
+            // this.accountService.delete(this.user.id)
+            //     .pipe(first())
+            //     .subscribe(() => {
+            //         this.alertService.success('Account deleted successfully', { keepAfterRouteChange: true });
+            //     });
         }
     }
 }

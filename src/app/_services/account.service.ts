@@ -7,7 +7,7 @@ import { map, finalize } from 'rxjs/operators';
 import { environment } from '@environments/environment';
 import { Account } from '@app/_models';
 
-const baseUrl = `${environment.apiUrl}/accounts`;
+const baseUrl = `${environment.apiUrl}/auth`;
 
 @Injectable({ providedIn: 'root' })
 export class AccountService {
@@ -25,34 +25,47 @@ export class AccountService {
     public get accountValue(): Account {
         return this.accountSubject.value;
     }
+    public get getJWTToken(): string {
+        return (document.cookie.split(';').find(x => x.includes('jwtToken')) || '=').split('=')[1];
+    }
 
-    login(email: string, password: string) {
-        return this.http.post<any>(`${baseUrl}/authenticate`, { email, password }, { withCredentials: true })
+    login(username: string, password: string) {
+        return this.http.post<any>(`${baseUrl}/login`, { username, password }, { withCredentials: true })
             .pipe(map(account => {
                 this.accountSubject.next(account);
+                const expires = new Date(Date.now() + account.expires_in*1000).toUTCString();
+                document.cookie = `jwtToken=${account.jwtToken}; expires=${expires}; path=/`;
                 this.startRefreshTokenTimer();
                 return account;
             }));
     }
 
+    whoami() {
+        return this.http.get<any>(`${baseUrl}/whoami`, { withCredentials: true });
+    }
+
     logout() {
-        this.http.post<any>(`${baseUrl}/revoke-token`, {}, { withCredentials: true }).subscribe();
         this.stopRefreshTokenTimer();
         this.accountSubject.next(null);
+        document.cookie = `jwtToken=; expires=Thu, 01 Jan 1970 00:00:01 GMT; path=/`;
         this.router.navigate(['/account/login']);
     }
 
     refreshToken() {
-        return this.http.post<any>(`${baseUrl}/refresh-token`, {}, { withCredentials: true })
+        return this.http.post<any>(`${baseUrl}/refresh`, { }, { withCredentials: true })
             .pipe(map((account) => {
-                this.accountSubject.next(account);
-                this.startRefreshTokenTimer();
+                if (account.jwtToken != undefined) {
+                    this.accountSubject.next(account);
+                    const expires = new Date(Date.now() + account.expires_in*1000).toUTCString();
+                    document.cookie = `jwtToken=${account.jwtToken}; expires=${expires}; path=/`;
+                    this.startRefreshTokenTimer();
+                }
                 return account;
             }));
     }
 
     register(account: Account) {
-        return this.http.post(`${baseUrl}/register`, account);
+        return this.http.post(`${baseUrl}/signup`, account);
     }
 
     verifyEmail(token: string) {
@@ -87,11 +100,11 @@ export class AccountService {
         return this.http.put(`${baseUrl}/${id}`, params)
             .pipe(map((account: any) => {
                 // update the current account if it was updated
-                if (account.id === this.accountValue.id) {
-                    // publish updated account to subscribers
-                    account = { ...this.accountValue, ...account };
-                    this.accountSubject.next(account);
-                }
+                // if (account.id === this.accountValue.id) {
+                //     // publish updated account to subscribers
+                //     account = { ...this.accountValue, ...account };
+                //     this.accountSubject.next(account);
+                // }
                 return account;
             }));
     }
@@ -100,8 +113,8 @@ export class AccountService {
         return this.http.delete(`${baseUrl}/${id}`)
             .pipe(finalize(() => {
                 // auto logout if the logged in account was deleted
-                if (id === this.accountValue.id)
-                    this.logout();
+                // if (id === this.userValue.id)
+                //     this.logout();
             }));
     }
 
