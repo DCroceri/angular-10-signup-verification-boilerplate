@@ -1,0 +1,41 @@
+<div class="p-4">
+    <div class="container">
+        <h1>Add comment</h1>
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+            <div class="form-row">
+                <div class="form-group col-7">
+                    <label>Comment</label>
+                    <textarea formControlName="commentText" class="form-control"
+                        [ngClass]="{ 'is-invalid': submitted && f.commentText.errors }"></textarea>
+                    <div *ngIf="submitted && f.commentText.errors" class="invalid-feedback">
+                        <div *ngIf="f.commentText.errors.required">Comment is required</div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <button [disabled]="loading" class="btn btn-primary">
+                    <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
+                    Add Comment
+                </button>
+                <a (click)="cancel()" class="btn btn-primary mr-1">Cancel</a>
+            </div>
+        </form>
+        <h2>Recipe</h2>
+        <p>
+            <strong>Author: </strong> {{recipe.author.name}}<br />
+            <strong>Tags: </strong> {{recipe.keywords}}
+        </p>
+        <h3>Ingredients</h3>
+        <p>{{recipe.ingredients}}</p>
+        <h3>Comments</h3>
+        <table class="table table-striped">
+            <thead></thead>
+            <tbody>
+                <tr *ngFor="let comment of comments">
+                    <td>{{comment.user.name}}</td>
+                    <td>{{comment.commentText}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

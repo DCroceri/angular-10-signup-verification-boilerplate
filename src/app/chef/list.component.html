@@ -1,0 +1,29 @@
+﻿<h1>My recipes</h1>
+<a routerLink="add" class="btn btn-sm btn-success mb-2">Create</a>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th style="width:30%">Recipe</th>
+            <th style="width:30%">Tags</th>
+            <th style="width:10%"></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let recipe of recipes">
+            <td>{{recipe.ingredients}}</td>
+            <td>{{recipe.keywords}}</td>
+            <td style="white-space: nowrap">
+                <a routerLink="edit/{{recipe.id}}" class="btn btn-sm btn-primary mr-1">Edit</a>
+                <button (click)="deleteRecipe(recipe.id)" class="btn btn-sm btn-danger btn-delete-recipe" [disabled]="recipe.isDeleting">
+                    <span *ngIf="recipe.isDeleting" class="spinner-border spinner-border-sm"></span>
+                    <span *ngIf="!recipe.isDeleting">Delete</span>
+                </button>
+            </td>
+        </tr>
+        <tr *ngIf="!recipes">
+            <td colspan="4" class="text-center">
+                <span class="spinner-border spinner-border-lg align-center"></span>
+            </td>
+        </tr>
+    </tbody>
+</table>

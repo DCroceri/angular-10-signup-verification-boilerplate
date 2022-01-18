@@ -1,15 +1,15 @@
 ﻿import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { first } from 'rxjs/operators';
+import { first, map } from 'rxjs/operators';
 
-import { AccountService, AlertService } from '@app/_services';
+import { UserService, AlertService } from '@app/_services';
 import { MustMatch } from '@app/_helpers';
 
 @Component({ templateUrl: 'add-edit.component.html' })
 export class AddEditComponent implements OnInit {
     form: FormGroup;
-    id: string;
+    id: number;
     isAddMode: boolean;
     loading = false;
     submitted = false;
@@ -18,7 +18,7 @@ export class AddEditComponent implements OnInit {
         private formBuilder: FormBuilder,
         private route: ActivatedRoute,
         private router: Router,
-        private accountService: AccountService,
+        private userService: UserService,
         private alertService: AlertService
     ) {}
 
@@ -27,21 +27,24 @@ export class AddEditComponent implements OnInit {
         this.isAddMode = !this.id;
 
         this.form = this.formBuilder.group({
-            title: ['', Validators.required],
-            firstName: ['', Validators.required],
-            lastName: ['', Validators.required],
+            username: ['', Validators.required],
+            name: ['', Validators.required],
             email: ['', [Validators.required, Validators.email]],
-            role: ['', Validators.required],
-            password: ['', [Validators.minLength(6), this.isAddMode ? Validators.required : Validators.nullValidator]],
+            roleName: ['', Validators.required],
+            enabled: [''],
+            password: ['', [Validators.minLength(4), this.isAddMode ? Validators.required : Validators.nullValidator]],
             confirmPassword: ['']
         }, {
             validator: MustMatch('password', 'confirmPassword')
         });
 
         if (!this.isAddMode) {
-            this.accountService.getById(this.id)
-                .pipe(first())
-                .subscribe(x => this.form.patchValue(x));
+            this.userService.getById(this.id)
+                .pipe(map((x:any)=> {
+                    this.form.patchValue(x);
+                    this.form.value.roleName=x.role.name;
+                console.log(this.form.value.roleName)}))
+                .subscribe();
         }
     }
 
@@ -68,11 +71,12 @@ export class AddEditComponent implements OnInit {
     }
 
     private createAccount() {
-        this.accountService.create(this.form.value)
+        this.form.value.role = {name: this.form.value.roleName};
+        this.userService.create(this.form.value)
             .pipe(first())
             .subscribe({
                 next: () => {
-                    this.alertService.success('Account created successfully', { keepAfterRouteChange: true });
+                    this.alertService.success('User created successfully', { keepAfterRouteChange: true });
                     this.router.navigate(['../'], { relativeTo: this.route });
                 },
                 error: error => {
@@ -83,7 +87,8 @@ export class AddEditComponent implements OnInit {
     }
 
     private updateAccount() {
-        this.accountService.update(this.id, this.form.value)
+        this.form.value.role = {name: this.form.value.roleName};
+        this.userService.update(this.id, this.form.value)
             .pipe(first())
             .subscribe({
                 next: () => {

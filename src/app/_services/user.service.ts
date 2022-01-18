@@ -33,6 +33,18 @@ export class UserService {
     }
 
     getAll() {
-        return this.http.get<User[]>(`${baseUrl}/`, { withCredentials: true});
+        return this.http.get<User[]>(`${baseUrl}`, { withCredentials: true});
+    }
+    getById(id: number) {
+        return this.http.get<User>(`${baseUrl}/${id}`, { withCredentials: true});
+    }
+    create(user: User) {
+        return this.http.post(`${baseUrl}/`, user, { withCredentials: true });
+    }
+    update(id: number, user: User) {
+        return this.http.put<User>(`${baseUrl}/${id}`, user, { withCredentials: true });
+    }
+    delete(id: number) {
+        return this.http.delete(`${baseUrl}/${id}`, { withCredentials: true });
     }
 }

@@ -1,6 +1,50 @@
 ﻿<div class="p-4">
     <div class="container">
         <h1>Hi {{user.name}}!</h1>
-        <p>You're logged in with Angular 10 & JWT!!</p>
+        <h1>Recipes</h1>
+        <a *ngIf="account.role === Role.Chef" routerLink="/my-recipes/add" class="btn btn-sm btn-success mb-2">Create</a>
+        <input type="search" name="search" #search class="form-control" (keyup.enter)="searchTags()" placeholder="search by comma separated tags" />
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th style="width:30%">Recipe</th>
+                    <th style="width:10%">Author</th>
+                    <th style="width:20%">Tags</th>
+                    <th style="width:30%">Comments</th>
+                    <th style="width:10%"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let recipe of recipes">
+                    <td>{{recipe.ingredients}}</td>
+                    <td>{{recipe.author.name}}</td>
+                    <td>{{recipe.keywords}}</td>
+                    <td>
+                        <table class="table table-striped">
+                            <thead></thead>
+                            <tbody>
+                                <tr *ngFor="let comment of recipe.comments">
+                                    <td>{{comment.commentText}}</td>
+                                    <td>{{comment.user.name}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                    <td style="white-space: nowrap">
+                        <a *ngIf="account.role === Role.User" routerLink="/comment/{{recipe.id}}" class="btn btn-sm btn-primary mr-1">Add comment</a>
+                        <a *ngIf="account.role === Role.Chef && user.id === recipe.author.id" routerLink="/my-recipes/edit/{{recipe.id}}" class="btn btn-sm btn-primary mr-1">Edit</a>
+                        <button *ngIf="account.role === Role.Chef && user.id === recipe.author.id" (click)="deleteRecipe(recipe.id)" class="btn btn-sm btn-danger btn-delete-recipe" [disabled]="recipe.isDeleting">
+                            <span *ngIf="recipe.isDeleting" class="spinner-border spinner-border-sm"></span>
+                            <span *ngIf="!recipe.isDeleting">Delete</span>
+                        </button>
+                    </td>
+                </tr>
+                <tr *ngIf="!recipes">
+                    <td colspan="4" class="text-center">
+                        <span class="spinner-border spinner-border-lg align-center"></span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </div>

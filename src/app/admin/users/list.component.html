@@ -16,11 +16,11 @@
             <td>{{user.email}}</td>
             <td>{{user.role.name}}</td>
             <td style="white-space: nowrap">
-                <!-- <a routerLink="edit/{{user.id}}" class="btn btn-sm btn-primary mr-1">Edit</a> -->
-                <!-- <button (click)="deleteAccount(user.id)" class="btn btn-sm btn-danger btn-delete-account" [disabled]="user.isDeleting">
-                    <span *ngIf="account.isDeleting" class="spinner-border spinner-border-sm"></span>
-                    <span *ngIf="!account.isDeleting">Delete</span>
-                </button> -->
+                <a routerLink="edit/{{user.id}}" class="btn btn-sm btn-primary mr-1">Edit</a>
+                <button (click)="deleteUser(user.id)" class="btn btn-sm btn-danger btn-delete-user" [disabled]="user.isDeleting">
+                    <span *ngIf="user.isDeleting" class="spinner-border spinner-border-sm"></span>
+                    <span *ngIf="!user.isDeleting">Delete</span>
+                </button>
             </td>
         </tr>
         <tr *ngIf="!users">

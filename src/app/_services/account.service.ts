@@ -84,40 +84,6 @@ export class AccountService {
         return this.http.post(`${baseUrl}/reset-password`, { token, password, confirmPassword });
     }
 
-    getAll() {
-        return this.http.get<Account[]>(baseUrl);
-    }
-
-    getById(id: string) {
-        return this.http.get<Account>(`${baseUrl}/${id}`);
-    }
-    
-    create(params) {
-        return this.http.post(baseUrl, params);
-    }
-    
-    update(id, params) {
-        return this.http.put(`${baseUrl}/${id}`, params)
-            .pipe(map((account: any) => {
-                // update the current account if it was updated
-                // if (account.id === this.accountValue.id) {
-                //     // publish updated account to subscribers
-                //     account = { ...this.accountValue, ...account };
-                //     this.accountSubject.next(account);
-                // }
-                return account;
-            }));
-    }
-    
-    delete(id: string) {
-        return this.http.delete(`${baseUrl}/${id}`)
-            .pipe(finalize(() => {
-                // auto logout if the logged in account was deleted
-                // if (id === this.userValue.id)
-                //     this.logout();
-            }));
-    }
-
     // helper methods
 
     private refreshTokenTimeout;

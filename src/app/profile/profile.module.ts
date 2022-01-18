@@ -5,7 +5,6 @@ import { CommonModule } from '@angular/common';
 import { ProfileRoutingModule } from './profile-routing.module';
 import { LayoutComponent } from './layout.component';
 import { DetailsComponent } from './details.component';
-import { UpdateComponent } from './update.component';
 
 @NgModule({
     imports: [
@@ -15,8 +14,7 @@ import { UpdateComponent } from './update.component';
     ],
     declarations: [
         LayoutComponent,
-        DetailsComponent,
-        UpdateComponent
+        DetailsComponent
     ]
 })
 export class ProfileModule { }

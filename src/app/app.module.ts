@@ -8,7 +8,6 @@ import { JwtInterceptor, ErrorInterceptor, appAuthInitializer, appUserInitialize
 import { AccountService, UserService } from './_services';
 import { AppComponent } from './app.component';
 import { AlertComponent } from './_components';
-import { HomeComponent } from './home';
 
 @NgModule({
     imports: [
@@ -19,8 +18,7 @@ import { HomeComponent } from './home';
     ],
     declarations: [
         AppComponent,
-        AlertComponent,
-        HomeComponent
+        AlertComponent
     ],
     providers: [
         { provide: APP_INITIALIZER, useFactory: appAuthInitializer, multi: true, deps: [AccountService] },
